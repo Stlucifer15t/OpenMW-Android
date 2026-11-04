@@ -25,7 +25,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
-import android.graphics.RectF
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 
@@ -64,7 +63,6 @@ object ControlStyle {
         textAlign = Paint.Align.CENTER
     }
 
-    private val rectF = RectF()
     private val bounds = Rect()
 
     /**
