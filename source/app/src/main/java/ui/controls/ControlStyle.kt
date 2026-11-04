@@ -135,18 +135,6 @@ object ControlStyle {
         canvas.drawText(label, cx, baseline, text)
     }
 
-    /** Draws a rounded translucent capsule, used by the shortcut bar. */
-    fun drawCapsule(canvas: Canvas, left: Float, top: Float, right: Float, bottom: Float, alpha: Int = 110) {
-        fill.color = PANEL_COLOR
-        fill.alpha = alpha
-        val radius = (bottom - top) / 2f
-        rectF.set(left, top, right, bottom)
-        canvas.drawRoundRect(rectF, radius, radius, fill)
-        outline.strokeWidth = 2f
-        outline.color = OUTLINE_COLOR
-        canvas.drawRoundRect(rectF, radius, radius, outline)
-    }
-
     /** Draws the ring that marks the joystick base. */
     fun drawStickBase(canvas: Canvas, cx: Float, cy: Float, radius: Float, alpha: Int) {
         fill.color = PANEL_COLOR
@@ -206,37 +194,14 @@ object ControlSettings {
     const val KEY_CAMERA_INVERT_X = "osc:camera:invertX"
     const val KEY_CAMERA_INVERT_Y = "osc:camera:invertY"
     const val KEY_CAMERA_AREA = "osc:camera:area"
-    const val KEY_LAYOUT_VERSION = "osc:prefs:version"
     const val KEY_JOYSTICK_DEADZONE = "osc:joystick:deadzone"
     const val KEY_CUSTOM_LAYOUT = "osc:customLayout"
-
-    /**
-     * Bumped when the default layout changes in a way that must be applied to
-     * users who still have the previous stock layout, without ever touching a
-     * layout the player edited by hand.
-     */
-    private const val LAYOUT_VERSION = 2
 
     fun opacityKey(id: String) = "osc:$id:opacity"
     fun sizeKey(id: String) = "osc:$id:size"
     fun xKey(id: String) = "osc:$id:x"
     fun yKey(id: String) = "osc:$id:y"
     fun hiddenKey(id: String) = "osc:$id:hidden"
-
-    /** True when the player ever moved, resized or hid anything. */
-    fun hasCustomLayout(prefs: SharedPreferences): Boolean =
-        prefs.getBoolean(KEY_CUSTOM_LAYOUT, false)
-
-    fun markCustomLayout(prefs: SharedPreferences) {
-        prefs.edit().putBoolean(KEY_CUSTOM_LAYOUT, true).apply()
-    }
-
-    fun markLayoutVersion(prefs: SharedPreferences) {
-        prefs.edit().putInt(KEY_LAYOUT_VERSION, LAYOUT_VERSION).commit()
-    }
-
-    fun layoutVersionUpToDate(prefs: SharedPreferences): Boolean =
-        prefs.getInt(KEY_LAYOUT_VERSION, 0) >= LAYOUT_VERSION
 
     fun cameraSensitivity(prefs: SharedPreferences): Float =
         prefs.getFloat(KEY_CAMERA_SENSITIVITY, 1.0f)
@@ -254,7 +219,4 @@ object ControlSettings {
     /** Dead zone of the virtual stick, as a fraction of its travel. */
     fun joystickDeadzone(prefs: SharedPreferences): Float =
         prefs.getFloat(KEY_JOYSTICK_DEADZONE, 0.08f)
-
-    fun dpToPx(context: Context, dp: Float): Float =
-        dp * context.resources.displayMetrics.density
 }

@@ -32,9 +32,6 @@ import org.libsdl.app.SDLActivity
 const val VIRTUAL_SCREEN_WIDTH = 1024
 const val VIRTUAL_SCREEN_HEIGHT = 768
 
-/** Default round button diameter, in virtual units. */
-const val CONTROL_DEFAULT_SIZE = 68
-
 /** Default analogue stick diameter, in virtual units. */
 const val JOYSTICK_SIZE = 240
 
@@ -472,7 +469,11 @@ class Osc {
                 view.visibility = View.VISIBLE
                 continue
             }
-            view.visibility = if (newState and element.visibility.v != 0) View.VISIBLE else View.GONE
+            // INVISIBLE rather than GONE: a GONE child is skipped by the
+            // layout pass, and turning it back on would leave the control at
+            // (0,0) until the next size change.
+            view.visibility =
+                if (newState and element.visibility.v != 0) View.VISIBLE else View.INVISIBLE
         }
 
         // Never leave a held key, mouse button or displaced stick behind when
@@ -492,8 +493,6 @@ class Osc {
     }
 
     // --------------------------------------------------------------- editor
-
-    fun allElements(): List<TouchHudElement> = elements
 
     fun elementById(id: String): TouchHudElement? = elements.firstOrNull { it.id == id }
 
@@ -590,16 +589,5 @@ enum class ControlPreset(val titleRes: Int) {
                 set("activate", 800, 664, 96, 0.95f)
             }
         }
-    }
-
-    companion object {
-        /** Order of the shortcut bar, shared with the editor. */
-        val SHORTCUT_ORDER = listOf(
-            "inventory", "stats", "spells", "journal",
-            "map", "quickSave", "quickLoad", "viewMode"
-        )
-
-        fun fromName(value: String?): ControlPreset? =
-            values().firstOrNull { it.name.equals(value, ignoreCase = true) }
     }
 }
