@@ -1,0 +1,13 @@
+<!-- Person: character sheet. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M24,7 C28,7 31,10 31,14 C31,18 28,21 24,21 C20,21 17,18 17,14 C17,10 20,7 24,7 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M9,41 C9,32 15,26 24,26 C33,26 39,32 39,41 Z" />
+</vector>

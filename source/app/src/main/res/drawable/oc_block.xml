@@ -1,0 +1,13 @@
+<!-- Shield outline: the guard/block control. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M24,4 L40,11 L40,24 C40,33.2 33.2,41.2 24,44 C14.8,41.2 8,33.2 8,24 L8,11 Z M24,8.6 L12.4,13.9 L12.4,24 C12.4,30.6 17.2,36.7 24,39.4 C30.8,36.7 35.6,30.6 35.6,24 L35.6,13.9 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M22.2,14.4 L25.8,14.4 L25.8,22.4 L31.6,22.4 L31.6,26 L25.8,26 L25.8,32.4 L22.2,32.4 L22.2,26 L16.4,26 L16.4,22.4 L22.2,22.4 Z" />
+</vector>

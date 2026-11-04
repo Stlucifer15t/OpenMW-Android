@@ -1,0 +1,9 @@
+# Android touch HUD bridge.
+#
+# The Java overlay (ui.controls.TouchHud) speaks to the game through this tiny
+# player script instead of faking key or mouse events: every on-screen button
+# activates a registered OpenMW input action, which is exactly the path a
+# keyboard key or gamepad button takes. That keeps rebinds, the "control
+# switch" restrictions (dead, paralysed, in-menu) and mods that bind to these
+# actions working unchanged.
+PLAYER: scripts/touchhud/player.lua

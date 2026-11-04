@@ -453,7 +453,10 @@ class GameActivity : SDLActivity() {
 
         var osc: Osc? = null
         if (!pref_hide_controls) {
-            val layout = layout
+            // OPENMW_ANDROID_TOUCH_HUD_V2
+            // The touch HUD replaces the old floating-circle controls. It is
+            // laid out in the same RelativeLayout that hosts the SDL surface,
+            // so existing preference-based positions keep working.
             osc = Osc()
             osc.placeElements(layout)
         }

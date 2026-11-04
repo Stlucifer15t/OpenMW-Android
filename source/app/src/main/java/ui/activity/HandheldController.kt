@@ -16,7 +16,9 @@ import java.io.IOException
 object HandheldController {
     private const val TAG = "HandheldController"
     const val CONTENT_FILE = "handheld.omwscripts"
+    const val TOUCH_HUD_CONTENT_FILE = "touchhud.omwscripts"
     private const val ASSET_ROOT = "handheld"
+    private const val TOUCH_HUD_ASSET_ROOT = "touchhud"
     private const val SCRIPTS = """MENU,PLAYER: scripts/omw/radialmenu/settings.lua
 PLAYER: scripts/omw/radialmenu/player.lua
 """
@@ -27,6 +29,24 @@ PLAYER: scripts/omw/radialmenu/player.lua
     private const val BUTTON_BACK = 4
     private const val BUTTON_LEFTSHOULDER = 9
     private const val BUTTON_RIGHTSHOULDER = 10
+
+    /**
+     * Installs the touch HUD input bridge: a player script that turns the
+     * overlay's unbound shortcut keys (Character / Magic / Map pages) into the
+     * matching OpenMW UI calls. It is always present, because the on-screen
+     * shortcut bar exists regardless of Handheld mode.
+     */
+    fun installTouchHud(context: Context): File? {
+        val root = File(context.filesDir, "touchhud")
+        return try {
+            root.deleteRecursively()
+            copyAssets(context, TOUCH_HUD_ASSET_ROOT, root)
+            root
+        } catch (e: IOException) {
+            Log.e(TAG, "Could not install the touch HUD scripts", e)
+            null
+        }
+    }
 
     fun install(context: Context, enabled: Boolean): File? {
         if (enabled) {

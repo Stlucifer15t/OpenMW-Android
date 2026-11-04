@@ -1,5 +1,6 @@
 /*
     Copyright (C) 2018, 2019 Ilya Zhuravlev
+    Copyright (C) 2024 OpenMW-Android contributors
 
     This file is part of OpenMW-Android.
 
@@ -21,24 +22,57 @@ package ui.controls
 
 import org.libsdl.app.SDLControllerManager
 
+/**
+ * Feeds the on-screen movement stick into the emulated "Virtual" gamepad that
+ * the native side declares in `android_main.cpp`.
+ *
+ * Movement goes through SDL's normal joystick path, so OpenMW's ICS bindings,
+ * its analogue movement code, the "player controls enabled" gating and the
+ * controller menu support all behave exactly as they do for a real pad. No
+ * parallel input system is introduced, and nothing here touches keyboard or
+ * mouse handling.
+ */
 internal object GamepadEmulator {
+
+    /** Random device id that cannot clash with a real controller. */
+    private const val DEVICE_ID = 1384510555
+
+    /**
+     * Axes advertised for the emulated pad: left stick, right stick and both
+     * triggers, matching the mapping registered by `android_main.cpp`.
+     */
+    private const val AXIS_COUNT = 6
 
     private var registered = false
 
-    fun updateStick(stickId: Int, x: Float, y: Float) {
-        // random device ID to make sure it doesn't conflict with anything
-        val deviceId = 1384510555
-
-        if (!registered) {
-            registered = true
-            SDLControllerManager.nativeAddJoystick(deviceId, "Virtual", "Virtual",
-                0xbad, 0xf00d,
-                false, -0x1,
-                4, 0, 0)
-        }
-
-        SDLControllerManager.onNativeJoy(deviceId, stickId * 2, x)
-        SDLControllerManager.onNativeJoy(deviceId, stickId * 2 + 1, y)
+    private fun ensureRegistered() {
+        if (registered)
+            return
+        registered = true
+        SDLControllerManager.nativeAddJoystick(
+            DEVICE_ID, "Virtual", "Virtual",
+            0xbad, 0xf00d,
+            false, -0x1,
+            AXIS_COUNT, 0, 0
+        )
     }
 
+    /** Left (or right) stick, values in [-1; 1]. */
+    fun updateStick(stickId: Int, x: Float, y: Float) {
+        ensureRegistered()
+        SDLControllerManager.onNativeJoy(DEVICE_ID, stickId * 2, x.coerceIn(-1f, 1f))
+        SDLControllerManager.onNativeJoy(DEVICE_ID, stickId * 2 + 1, y.coerceIn(-1f, 1f))
+    }
+
+    /**
+     * Zeroes both sticks without creating the virtual pad when the overlay
+     * never used it, so a keyboard/mouse player never sees a phantom
+     * controller appear in the game.
+     */
+    fun releaseAllIfActive() {
+        if (!registered)
+            return
+        updateStick(0, 0f, 0f)
+        updateStick(1, 0f, 0f)
+    }
 }

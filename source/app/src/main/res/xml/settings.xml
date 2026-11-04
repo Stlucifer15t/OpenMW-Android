@@ -12,11 +12,9 @@
         <CheckBoxPreference android:key="pref_omw050_controller_tooltips" android:title="@string/pref_omw050_controller_tooltips_title" android:summary="@string/pref_omw050_controller_tooltips_summary" android:dependency="pref_omw050_controller_menus" android:defaultValue="false" />
         <ListPreference android:key="pref_omw051_controller_trigger_thresholds" android:title="@string/pref_omw051_controller_trigger_thresholds_title" android:dialogTitle="@string/pref_omw051_controller_trigger_thresholds_dialogtitle" android:entries="@array/pref_omw051_controller_trigger_sensitivity_entries" android:entryValues="@array/pref_omw051_controller_trigger_sensitivity_values" android:defaultValue="30720,26624" android:dependency="pref_omw050_controller_menus" android:summary="%s" />
         <CheckBoxPreference android:key="pref_handheld_mode" android:title="@string/pref_handheld_mode_title" android:summary="@string/pref_handheld_mode_summary" android:defaultValue="false" />
-        <Preference android:title="@string/action_show_screen_controls" android:key="pref_controls" android:summary="@string/pref_controls_summary" />
+        
+        <Preference android:key="pref_controls" android:title="@string/pref_touch_hud_layout" android:summary="@string/pref_touch_hud_layout_summary" />
         <CheckBoxPreference android:key="pref_hide_controls" android:title="@string/pref_hide_controls" />
-        <CheckBoxPreference android:key="pref_always_show_top_bar" android:title="@string/pref_always_show_top_bar" />
-        <CheckBoxPreference android:key="pref_show_qp" android:title="@string/pref_show_qp" />
-        <CheckBoxPreference android:key="pref_show_fn" android:title="@string/pref_show_fn" />
         <CheckBoxPreference android:key="pref_screen_keeper" android:title="@string/pref_screen_keeper" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/category_performance">

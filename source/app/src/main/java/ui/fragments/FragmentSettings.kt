@@ -122,7 +122,9 @@ class FragmentSettings : PreferenceFragment(), OnSharedPreferenceChangeListener 
             true
         }
 
-        findPreference("pref_controls").setOnPreferenceClickListener {
+        // OPENMW_ANDROID_TOUCH_HUD_V2: this entry opens the drag-and-drop
+        // layout editor for the on-screen controls.
+        findPreference("pref_controls")?.setOnPreferenceClickListener {
             val intent = Intent(activity, ConfigureControls::class.java)
             this.startActivity(intent)
             true
@@ -587,7 +589,7 @@ class FragmentSettings : PreferenceFragment(), OnSharedPreferenceChangeListener 
     /** Handheld mode never shows the touch overlay, so its options do not apply. */
     private fun updateHandheldState() {
         val handheld = preferenceScreen.sharedPreferences.getBoolean(Constants.HANDHELD_MODE, false)
-        listOf("pref_controls", Constants.HIDE_CONTROLS, "pref_always_show_top_bar", "pref_show_qp", "pref_show_fn")
+        listOf("pref_controls", Constants.HIDE_CONTROLS)
             .forEach { findPreference(it)?.isEnabled = !handheld }
     }
 

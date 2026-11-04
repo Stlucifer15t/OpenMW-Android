@@ -1,0 +1,15 @@
+<!-- Backpack. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M18,10 C18,7.8 19.8,6 22,6 L26,6 C28.2,6 30,7.8 30,10 L30,12 L34,12 C36.2,12 38,13.8 38,16 L38,38 C38,40.2 36.2,42 34,42 L14,42 C11.8,42 10,40.2 10,38 L10,16 C10,13.8 11.8,12 14,12 L18,12 Z M22,10 L22,12 L26,12 L26,10 Z" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M16,22 L32,22 M16,28 L32,28"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2.6" />
+</vector>

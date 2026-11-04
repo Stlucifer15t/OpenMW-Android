@@ -1,0 +1,16 @@
+<!-- Sword: the primary attack control. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M35.6,6.4 L41.6,12.4 L22.4,31.6 L19.2,32.4 L16.4,29.6 L17.2,26.4 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M15.6,25.6 L22.4,32.4 L19.2,35.6 L15.2,35.6 L13.2,37.6 L10.4,34.8 L12.4,32.8 L12.4,28.8 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M9.2,36 L12,38.8 L7.6,43.2 C6.4,44.4 4.4,44.4 3.2,43.2 C2,42 2,40 3.2,38.8 Z" />
+</vector>

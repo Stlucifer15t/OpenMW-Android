@@ -1,78 +1,197 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Touch HUD layout editor.
+
+    The controls themselves are added programmatically into controlsContainer
+    (they are the very same views the game uses), so this file only provides the
+    editing chrome: a status line, selected/bulk adjustments, presets and
+    save/restore. The panel is translucent and pinned to the bottom; it can be
+    collapsed to reach controls that sit underneath it.
+-->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/controlsContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
+    <ScrollView
+        android:id="@+id/editorPanel"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_centerInParent="true"
-        >
-
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/btnOpacityPlus"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/btn_opacityPlus"
-                android:onClick="clickOpacityPlus"
-                />
-
-            <Button
-                android:id="@+id/btnOpacityMinus"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/btn_opacityMinus"
-                android:onClick="clickOpacityMinus"
-                />
-        </LinearLayout>
-
+        android:layout_alignParentBottom="true"
+        android:background="#CC0C1116"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:scrollbars="none">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <Button
-                android:id="@+id/btnSizePlus"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/btn_sizePlus"
-                android:onClick="clickSizePlus"
-                />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-            <Button
-                android:id="@+id/btnSizeMinus"
+                <TextView
+                    android:id="@+id/selectedLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="#FFF2F4F6"
+                    android:textSize="12sp"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:text="@string/editor_select_hint" />
+
+                <Button
+                    android:id="@+id/btnPanelToggle"
+                    style="@style/EditorButton"
+                    android:layout_width="wrap_content"
+                    android:layout_weight="0"
+                    android:minWidth="56dp"
+                    android:text="@string/btn_panel_collapse"
+                    android:onClick="clickPanelToggle" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/editorPanelBody"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/btn_sizeMinus"
-                android:onClick="clickSizeMinus"
-                />
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnOpacityMinus"
+                        style="@style/EditorButton"
+                        android:text="@string/btn_opacityMinus"
+                        android:onClick="clickOpacityMinus" />
+
+                    <Button
+                        android:id="@+id/btnOpacityPlus"
+                        style="@style/EditorButton"
+                        android:text="@string/btn_opacityPlus"
+                        android:onClick="clickOpacityPlus" />
+
+                    <Button
+                        android:id="@+id/btnSizeMinus"
+                        style="@style/EditorButton"
+                        android:text="@string/btn_sizeMinus"
+                        android:onClick="clickSizeMinus" />
+
+                    <Button
+                        android:id="@+id/btnSizePlus"
+                        style="@style/EditorButton"
+                        android:text="@string/btn_sizePlus"
+                        android:onClick="clickSizePlus" />
+
+                    <Button
+                        android:id="@+id/btnHide"
+                        style="@style/EditorButton"
+                        android:text="@string/btn_hide"
+                        android:onClick="clickHide" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnAllOpacityMinus"
+                        style="@style/EditorButton"
+                        android:text="@string/btn_all_opacityMinus"
+                        android:onClick="clickAllOpacityMinus" />
+
+                    <Button
+                        android:id="@+id/btnAllOpacityPlus"
+                        style="@style/EditorButton"
+                        android:text="@string/btn_all_opacityPlus"
+                        android:onClick="clickAllOpacityPlus" />
+
+                    <Button
+                        android:id="@+id/btnAllSizeMinus"
+                        style="@style/EditorButton"
+                        android:text="@string/btn_all_sizeMinus"
+                        android:onClick="clickAllSizeMinus" />
+
+                    <Button
+                        android:id="@+id/btnAllSizePlus"
+                        style="@style/EditorButton"
+                        android:text="@string/btn_all_sizePlus"
+                        android:onClick="clickAllSizePlus" />
+
+                    <Spinner
+                        android:id="@+id/presetSpinner"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.4"
+                        android:background="#33FFFFFF"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnSaveLayout"
+                        style="@style/EditorButton"
+                        android:text="@string/btn_save_layout"
+                        android:onClick="clickSaveLayout" />
+
+                    <Button
+                        android:id="@+id/btnLoadLayout"
+                        style="@style/EditorButton"
+                        android:text="@string/btn_load_layout"
+                        android:onClick="clickLoadLayout" />
+
+                    <Button
+                        android:id="@+id/btnDeleteLayout"
+                        style="@style/EditorButton"
+                        android:text="@string/btn_delete_layout"
+                        android:onClick="clickDeleteLayout" />
+
+                    <Button
+                        android:id="@+id/btnReset"
+                        style="@style/EditorButton"
+                        android:text="@string/btn_resetControlsLayout"
+                        android:onClick="clickResetControls" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnCamera"
+                        style="@style/EditorButton"
+                        android:text="@string/camera_settings"
+                        android:onClick="clickCameraSettings" />
+
+                    <Button
+                        android:id="@+id/btnJoystick"
+                        style="@style/EditorButton"
+                        android:text="@string/joystick_settings"
+                        android:onClick="clickJoystickSettings" />
+
+                    <Button
+                        android:id="@+id/btnBack"
+                        style="@style/EditorButton"
+                        android:text="@string/btn_back"
+                        android:onClick="clickBack" />
+                </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
-
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_resetControlsLayout"
-            android:onClick="clickResetControls"
-            />
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_back"
-            android:onClick="clickBack"
-            />
-
-
-    </LinearLayout>
-
+    </ScrollView>
 </RelativeLayout>

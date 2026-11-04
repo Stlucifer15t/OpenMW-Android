@@ -105,7 +105,6 @@
     <string name="pref_omw050_controller_tooltips_summary">Visar alltid föremålens verktygstips utan att R3 behöver tryckas.</string>
     <string name="pref_omw051_controller_trigger_thresholds_title">Känslighet för handkontrollens avtryckare</string>
     <string name="pref_omw051_controller_trigger_thresholds_dialogtitle">Känslighet för handkontrollens avtryckare</string>
-    <string name="pref_controls_summary">Konfigurera de pekskärmskontroller du föredrar.</string>
     <string name="gs_framerate_limit_summary">%s FPS</string>
     <string name="l10n_settings_audio_title">Ljud</string>
     <string name="pref_omw050_doppler_title">Dopplereffekt</string>

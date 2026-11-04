@@ -1,0 +1,10 @@
+<!-- Eye: toggle first/third person. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M24,12 C34,12 43,20 45,24 C43,28 34,36 24,36 C14,36 5,28 3,24 C5,20 14,12 24,12 Z M24,17 C20.1,17 17,20.1 17,24 C17,27.9 20.1,31 24,31 C27.9,31 31,27.9 31,24 C31,20.1 27.9,17 24,17 Z M24,20 C26.2,20 28,21.8 28,24 C28,26.2 26.2,28 24,28 C21.8,28 20,26.2 20,24 C20,21.8 21.8,20 24,20 Z" />
+</vector>

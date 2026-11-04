@@ -1,0 +1,13 @@
+<!-- Sparkle star: ready magic. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M24,4 L28,17 L41,21 L28,25 L24,38 L20,25 L7,21 L20,17 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M36,30 L38,36 L44,38 L38,40 L36,46 L34,40 L28,38 L34,36 Z" />
+</vector>

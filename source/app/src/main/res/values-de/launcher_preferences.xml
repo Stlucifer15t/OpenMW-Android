@@ -105,7 +105,6 @@
     <string name="pref_omw050_controller_tooltips_summary">Gegenstands-Tooltips immer anzeigen, ohne R3 drücken zu müssen.</string>
     <string name="pref_omw051_controller_trigger_thresholds_title">Controller-Trigger-Empfindlichkeit</string>
     <string name="pref_omw051_controller_trigger_thresholds_dialogtitle">Controller-Trigger-Empfindlichkeit</string>
-    <string name="pref_controls_summary">Bevorzugte Touch-Bildschirmsteuerung konfigurieren.</string>
     <string name="gs_framerate_limit_summary">%s FPS</string>
     <string name="l10n_settings_audio_title">Audio</string>
     <string name="pref_omw050_doppler_title">Doppler-Effekt</string>

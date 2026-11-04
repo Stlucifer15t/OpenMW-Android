@@ -1,0 +1,19 @@
+<!-- Crossed sword and axe: ready weapon. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M10,6 L14,10 L32,32 L30,36 L28,34 L10,12 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M13,31 L17,35 L9,43 L5,39 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M38,12 C41,16 41,22 38,26 L33,21 C36,18 37,15 38,12 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M40,8 L42,10 L36,27 L33,24 Z" />
+</vector>

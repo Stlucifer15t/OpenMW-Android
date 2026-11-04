@@ -682,6 +682,18 @@ class MainActivity : AppCompatActivity() {
                     append("content=${HandheldController.CONTENT_FILE}\n")
                 }
 
+                // OPENMW_ANDROID_TOUCH_HUD_BRIDGE_V1
+                // The on-screen shortcut bar needs the inventory sub-pages
+                // (Character / Magic / Map) that OpenMW has no key for. The
+                // bridge script maps dedicated, otherwise unbound keys onto
+                // those UI calls. It is independent of Handheld mode because
+                // the touch overlay is shown in both.
+                val touchHud = HandheldController.installTouchHud(this@MainActivity)
+                if (touchHud != null) {
+                    append("data=\"${touchHud.absolutePath}\"\n")
+                    append("content=${HandheldController.TOUCH_HUD_CONTENT_FILE}\n")
+                }
+
                 val fontPrefs = PreferenceManager.getDefaultSharedPreferences(this@MainActivity)
                 val fontSize = FontSizeOverride.install(
                     this@MainActivity,
