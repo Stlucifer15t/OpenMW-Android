@@ -169,8 +169,11 @@ class ConfigureControls : Activity() {
 
         setContentView(R.layout.configure_controls)
 
-        // Remember the layout so "Revert" can undo an accidental drag.
-        ControlLayoutStore.snapshotForUndo(this)
+        // Remember the layout so "Revert" can undo an accidental drag. Only on
+        // a fresh editor: recreate() (after a load or a reset) must not
+        // overwrite the snapshot with the state it has just restored.
+        if (savedInstanceState == null)
+            ControlLayoutStore.snapshotForUndo(this)
 
         val container: RelativeLayout = findViewById(R.id.controlsContainer)
         selectedLabel = findViewById(R.id.selectedLabel)

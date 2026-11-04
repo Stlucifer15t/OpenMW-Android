@@ -40,6 +40,8 @@ const val JOYSTICK_SIZE = 240
  * binding are consumed by the companion bridge script
  * (scripts/touchhud/player.lua) to open a specific inventory page.
  */
+private const val ATTACK_DRAG_SCALE = 6f
+
 private val KEY_INVENTORY_PAGE = KeyEvent.KEYCODE_U
 private val KEY_JOURNAL_PAGE = KeyEvent.KEYCODE_K
 private val KEY_STATS_PAGE = KeyEvent.KEYCODE_F6
@@ -323,7 +325,12 @@ class Osc {
         if (!attackDragging && System.currentTimeMillis() - attackDownAt < 120)
             return
         attackDragging = true
-        SDLActivity.sendRelativeMouseMotion((dx * 9f).toInt(), (dy * 9f).toInt())
+        // Same order of magnitude as the old attack pad (a drag across the
+        // button turns the view about as far as the right-hand area does).
+        SDLActivity.sendRelativeMouseMotion(
+            (dx * ATTACK_DRAG_SCALE).toInt(),
+            (dy * ATTACK_DRAG_SCALE).toInt()
+        )
     }
 
     // ------------------------------------------------------------- placement
