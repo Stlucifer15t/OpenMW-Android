@@ -88,7 +88,13 @@ jobs:
       - name: Compile every Kotlin/Java source (no native payload needed)
         run: |
           set +e
-          ./gradlew :app:compileMainlineDebugSources --stacktrace 2>&1 | tee gradle.log
+          # preBuild dependsOn verifyOpenMwPayload, which needs the generated
+          # native payload. Excluding it lets the Kotlin/Java sources be compiled
+          # on a payload-free checkout; the APK job below keeps the gate intact.
+          ./gradlew :app:compileMainlineDebugSources \
+            -x verifyOpenMwPayload \
+            -x removeRetiredWaterAssets \
+            --stacktrace 2>&1 | tee gradle.log
           status=${PIPESTATUS[0]}
           if [ "$status" -ne 0 ]; then
             echo "::error::Gradle failed with exit code $status"
