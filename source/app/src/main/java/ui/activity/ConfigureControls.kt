@@ -71,7 +71,7 @@ class ConfigureCallback(activity: Activity) : View.OnTouchListener {
 
     var onSelectionChanged: ((TouchHudElement?) -> Unit)? = null
 
-    private fun elementOf(view: View): TouchHudElement? = view.tag as? TouchHudElement
+    private fun elementOf(view: View?): TouchHudElement? = view?.tag as? TouchHudElement
 
     override fun onTouch(v: View, event: MotionEvent): Boolean {
         val element = elementOf(v) ?: return false
