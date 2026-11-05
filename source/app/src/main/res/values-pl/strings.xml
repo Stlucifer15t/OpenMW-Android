@@ -240,6 +240,7 @@
     <string name="joystick_settings">Drążek</string>
     <string name="joystick_deadzone">Martwa strefa: %1$d%%</string>
     <string name="control_attack">Atak</string>
+    <string name="control_block">Blok</string>
     <string name="control_jump">Skok</string>
     <string name="control_sneak">Skradanie</string>
     <string name="control_weapon">Dobądź broń</string>

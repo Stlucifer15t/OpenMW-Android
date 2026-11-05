@@ -240,6 +240,7 @@
     <string name="joystick_settings">Styrspak</string>
     <string name="joystick_deadzone">Död zon: %1$d%%</string>
     <string name="control_attack">Attack</string>
+    <string name="control_block">Blockera</string>
     <string name="control_jump">Hoppa</string>
     <string name="control_sneak">Smyga</string>
     <string name="control_weapon">Dra vapen</string>

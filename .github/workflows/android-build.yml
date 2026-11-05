@@ -198,6 +198,29 @@ jobs:
       - name: Verify the payload against the build gate
         run: python3 tools/verify-openmw-payload.py
 
+      # Runs the build.gradle gates (payload, launcher, localization, OMWFX,
+      # shadow shaders) up front, so one run reports every violation at once
+      # instead of stopping at the first one.
+      - name: Check every Gradle build gate
+        run: |
+          set +e
+          python3 tools/check-build-gates.py 2>&1 | tee gates.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            grep -E "^ - " gates.log | head -n 20 | while IFS= read -r line; do
+              echo "::error::$(printf '%s' "$line" | cut -c1-900)"
+            done
+          fi
+          exit "$status"
+
+      - name: Upload the gate report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-gates
+          path: source/gates.log
+          if-no-files-found: warn
+
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 

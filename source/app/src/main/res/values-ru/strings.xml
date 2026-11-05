@@ -240,6 +240,7 @@
     <string name="joystick_settings">Джойстик</string>
     <string name="joystick_deadzone">Мёртвая зона: %1$d%%</string>
     <string name="control_attack">Атака</string>
+    <string name="control_block">Блок</string>
     <string name="control_jump">Прыжок</string>
     <string name="control_sneak">Скрытность</string>
     <string name="control_weapon">Достать оружие</string>

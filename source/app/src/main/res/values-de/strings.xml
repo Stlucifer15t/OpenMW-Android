@@ -240,6 +240,7 @@
     <string name="joystick_settings">Joystick</string>
     <string name="joystick_deadzone">Totzone: %1$d%%</string>
     <string name="control_attack">Angriff</string>
+    <string name="control_block">Blocken</string>
     <string name="control_jump">Springen</string>
     <string name="control_sneak">Schleichen</string>
     <string name="control_weapon">Waffe ziehen</string>

@@ -240,6 +240,7 @@
     <string name="joystick_settings">Joystick</string>
     <string name="joystick_deadzone">Zone morte : %1$d%%</string>
     <string name="control_attack">Attaque</string>
+    <string name="control_block">Parer</string>
     <string name="control_jump">Saut</string>
     <string name="control_sneak">Discrétion</string>
     <string name="control_weapon">Dégainer</string>
