@@ -3,15 +3,17 @@ name: Android build
 # Builds the OpenMW Android APK on GitHub's runners.
 #
 # The OpenMW 0.51.0 native payload (libopenmw.so + the engine resources) is
-# generated locally and is far too large to commit, so the APK job downloads it
-# from a release asset first. When that asset is absent the APK job is skipped
-# and the "payload status" job tells you exactly what is missing instead of
-# failing on a cryptic Gradle gate.
+# generated, not committed, and app/build.gradle refuses to build without it.
+# Instead of compiling the engine for hours, this workflow seeds the payload
+# from a released APK of the same OpenMW Android version (see
+# tools/GITHUB_BUILD.md) and then assembles the APK with the updated Java/Kotlin
+# UI, resources and assets from this branch.
 #
-#   Run "Kotlin compile check" - fast, no native payload, verifies the source.
-#   Run "Build APK"           - full Gradle assemble, needs the payload asset.
-#
-# See tools/GITHUB_BUILD.md for how to produce and publish the payload.
+# Inputs (Actions -> Android build -> Run workflow):
+#   payload_source          upstream | release-asset | none
+#   payload_asset           asset name, used when payload_source=release-asset
+#   accept_native_baseline  pin the payload's libopenmw.so digest instead of
+#                           requiring the local Patch-39 digest
 
 on:
   push:
@@ -19,14 +21,18 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
+      payload_source:
+        description: Where the native payload comes from.
+        type: choice
+        options: [upstream, release-asset, none]
+        required: false
+        default: upstream
       payload_asset:
-        description: >-
-          Release asset name holding the native payload zip, or "none" to skip
-          the APK build and only run the Kotlin compile check.
+        description: Release asset name in this repo (payload_source=release-asset).
         required: false
         default: openmw-051-payload.zip
-      build_apk:
-        description: Assemble the APK (requires the payload asset above).
+      accept_native_baseline:
+        description: Pin whatever libopenmw.so the source archive carries.
         type: boolean
         required: false
         default: true
@@ -41,10 +47,13 @@ permissions:
 env:
   GRADLE_OPTS: '-Dorg.gradle.jvmargs=-Xmx4g -Dorg.gradle.daemon=false'
   JAVA_VERSION: '17'
+  # Released APK of the OpenMW Android version this repository is based on.
+  UPSTREAM_REPO: Andiweli/OpenMW-Android
+  UPSTREAM_TAG: 0.51.0-14
 
 jobs:
   # ---------------------------------------------------------------------------
-  # 1. Fast, payload-free verification. Always runs.
+  # 1. Fast, payload-free verification of the sources.
   # ---------------------------------------------------------------------------
   kotlin-compile:
     name: Kotlin compile check
@@ -65,8 +74,6 @@ jobs:
       # packages this project needs are installed explicitly.
       - name: Install SDK packages
         run: |
-          # The ubuntu runners ship the Android command line tools; only the SDK
-          # packages this project needs are installed explicitly.
           SDKMANAGER="${ANDROID_HOME:-$ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
           if [ ! -x "$SDKMANAGER" ]; then
             SDKMANAGER=$(find "${ANDROID_HOME:-$ANDROID_SDK_ROOT}" -name sdkmanager -type f | head -n 1)
@@ -83,14 +90,12 @@ jobs:
           java -version
           ./gradlew --version
 
-      # Publish the Gradle failure as a check annotation so it is readable
-      # without downloading the (large) job log.
+      # preBuild dependsOn verifyOpenMwPayload, which needs the generated
+      # native payload. Excluding it lets the Kotlin/Java sources be compiled
+      # on a payload-free checkout; the APK job below keeps the gate intact.
       - name: Compile every Kotlin/Java source (no native payload needed)
         run: |
           set +e
-          # preBuild dependsOn verifyOpenMwPayload, which needs the generated
-          # native payload. Excluding it lets the Kotlin/Java sources be compiled
-          # on a payload-free checkout; the APK job below keeps the gate intact.
           ./gradlew :app:compileMainlineDebugSources \
             -x verifyOpenMwPayload \
             -x removeRetiredWaterAssets \
@@ -105,13 +110,10 @@ jobs:
             fi
             printf '%s\n' "$matches" | while IFS= read -r line; do
               [ -n "$line" ] || continue
-              esc=$(printf '%s' "$line" | tr -d '\r' | cut -c1-900)
-              echo "::error::${esc}"
+              echo "::error::$(printf '%s' "$line" | tr -d '\r' | cut -c1-900)"
             done
-            {
-              echo "===== tail of gradle.log ====="
-              tail -n 40 gradle.log
-            } >&2
+            echo "===== tail of gradle.log ====="
+            tail -n 40 gradle.log
           fi
           exit "$status"
 
@@ -123,56 +125,23 @@ jobs:
           path: source/gradle.log
           if-no-files-found: warn
 
-      - name: Report missing native payload
-        if: always()
-        run: python3 tools/verify-openmw-payload.py --report
-
   # ---------------------------------------------------------------------------
-  # 2. Payload gate. Decides whether the APK job can run.
-  # ---------------------------------------------------------------------------
-  payload-status:
-    name: Native payload status
-    runs-on: ubuntu-latest
-    outputs:
-      available: ${{ steps.probe.outputs.available }}
-      asset: ${{ steps.probe.outputs.asset }}
-    steps:
-      - name: Probe the release asset
-        id: probe
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ASSET: ${{ github.event.inputs.payload_asset || 'openmw-051-payload.zip' }}
-          SKIP: ${{ github.event.inputs.build_apk }}
-        run: |
-          set -eu
-          if [ "${SKIP:-true}" = "false" ] || [ "${ASSET}" = "none" ]; then
-            echo "APK build not requested; skipping payload."
-            echo "available=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          # Look for the asset on any release in this repository.
-          url=$(gh api "repos/${{ github.repository }}/releases" \
-                  --jq "[.[].assets[] | select(.name==\"${ASSET}\")][0].url" 2>/dev/null || true)
-          if [ -n "${url}" ] && [ "${url}" != "null" ]; then
-            echo "Found payload asset: ${ASSET}"
-            echo "available=true" >> "$GITHUB_OUTPUT"
-            echo "asset=${ASSET}" >> "$GITHUB_OUTPUT"
-          else
-            echo "::warning title=Native payload missing::No release asset named '${ASSET}' in this repository. The APK is not built. Run tools\\build-openmw-051-runtime.ps1 + tools\\pack-openmw-payload.ps1 locally and attach the zip to a release (see tools/GITHUB_BUILD.md)."
-            echo "available=false" >> "$GITHUB_OUTPUT"
-          fi
-
-  # ---------------------------------------------------------------------------
-  # 3. Assemble the APK. Runs only when the payload asset exists.
+  # 2. Seed the native payload, then assemble the APK.
   # ---------------------------------------------------------------------------
   apk:
     name: Build APK
-    needs: [payload-status, kotlin-compile]
-    if: needs.payload-status.outputs.available == 'true'
+    needs: kotlin-compile
+    if: >-
+      github.event.inputs.payload_source != 'none' &&
+      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: source
+    env:
+      PAYLOAD_SOURCE: ${{ github.event.inputs.payload_source || 'upstream' }}
+      PAYLOAD_ASSET: ${{ github.event.inputs.payload_asset || 'openmw-051-payload.zip' }}
+      ACCEPT_BASELINE: ${{ github.event.inputs.accept_native_baseline || 'true' }}
     steps:
       - uses: actions/checkout@v5
 
@@ -182,12 +151,8 @@ jobs:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
 
-      # The ubuntu runners ship the Android command line tools; only the SDK
-      # packages this project needs are installed explicitly.
       - name: Install SDK packages
         run: |
-          # The ubuntu runners ship the Android command line tools; only the SDK
-          # packages this project needs are installed explicitly.
           SDKMANAGER="${ANDROID_HOME:-$ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
           if [ ! -x "$SDKMANAGER" ]; then
             SDKMANAGER=$(find "${ANDROID_HOME:-$ANDROID_SDK_ROOT}" -name sdkmanager -type f | head -n 1)
@@ -196,20 +161,39 @@ jobs:
           yes | "$SDKMANAGER" --licenses > /dev/null || true
           "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0" "ndk;26.1.10909125"
 
-      - name: Download the native payload
+      # Release assets are served from a different host than the API, so they
+      # are fetched through the API with an octet-stream accept header.
+      - name: Download the payload archive
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ASSET: ${{ needs.payload-status.outputs.asset }}
         run: |
-          set -eu
+          set -euo pipefail
           mkdir -p /tmp/payload
-          asset_id=$(gh api "repos/${{ github.repository }}/releases" \
-            --jq "[.[].assets[] | select(.name==\"${ASSET}\")][0].id")
-          gh api -H "Accept: application/octet-stream" \
-            "repos/${{ github.repository }}/releases/assets/${asset_id}" > /tmp/payload/payload.zip
-          # Entries are stored relative to source/, so extract in place.
-          unzip -q -o /tmp/payload/payload.zip -d .
-          rm -f /tmp/payload/payload.zip
+          if [ "$PAYLOAD_SOURCE" = "release-asset" ]; then
+            repo="${{ github.repository }}"
+            asset_id=$(gh api "repos/${repo}/releases" \
+              --jq "[.[].assets[] | select(.name==\"${PAYLOAD_ASSET}\")][0].id")
+            [ -n "$asset_id" ] && [ "$asset_id" != "null" ] || {
+              echo "::error::release asset ${PAYLOAD_ASSET} not found in ${repo}"; exit 1; }
+            gh api -H "Accept: application/octet-stream" \
+              "repos/${repo}/releases/assets/${asset_id}" > /tmp/payload/payload
+          else
+            asset_id=$(gh api "repos/${UPSTREAM_REPO}/releases/tags/${UPSTREAM_TAG}" \
+              --jq '.assets[0].id')
+            echo "Downloading the ${UPSTREAM_TAG} reference APK from ${UPSTREAM_REPO}"
+            gh api -H "Accept: application/octet-stream" \
+              "repos/${UPSTREAM_REPO}/releases/assets/${asset_id}" > /tmp/payload/payload
+          fi
+          ls -l /tmp/payload/payload
+
+      - name: Seed the native payload
+        run: |
+          set -euo pipefail
+          args=(/tmp/payload/payload --source-version "$UPSTREAM_TAG")
+          if [ "$ACCEPT_BASELINE" = "true" ]; then
+            args+=(--accept-native-baseline)
+          fi
+          python3 tools/seed-openmw-payload.py "${args[@]}"
 
       - name: Verify the payload against the build gate
         run: python3 tools/verify-openmw-payload.py
@@ -223,7 +207,23 @@ jobs:
           ./gradlew --version
 
       - name: Assemble the APK
-        run: ./gradlew :app:assembleMainlineDebug --stacktrace
+        run: |
+          set +e
+          ./gradlew :app:assembleMainlineDebug --stacktrace 2>&1 | tee gradle-assemble.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            echo "::error::assembleMainlineDebug failed with exit code $status"
+            matches=$(grep -nE "(^e: |error:|FAILURE:|What went wrong|Execution failed|Caused by|> Could not|Unresolved reference|Could not resolve|AAPT)" gradle-assemble.log | head -n 8 || true)
+            if [ -z "$matches" ]; then
+              matches=$(tail -n 8 gradle-assemble.log)
+            fi
+            printf '%s\n' "$matches" | while IFS= read -r line; do
+              [ -n "$line" ] || continue
+              echo "::error::$(printf '%s' "$line" | tr -d '\r' | cut -c1-900)"
+            done
+            tail -n 60 gradle-assemble.log
+          fi
+          exit "$status"
 
       - name: Collect the APK
         id: collect
@@ -233,10 +233,7 @@ jobs:
           find app/build/outputs/apk -name '*.apk' -exec cp {} artifacts/ \;
           ls -l artifacts
           apk=$(find artifacts -name '*.apk' | head -n 1)
-          if [ -z "$apk" ]; then
-            echo "No APK was produced." >&2
-            exit 1
-          fi
+          [ -n "$apk" ] || { echo "::error::no APK was produced"; exit 1; }
           echo "apk=source/$apk" >> "$GITHUB_OUTPUT"
 
       - name: Upload the APK
@@ -246,3 +243,11 @@ jobs:
           path: ${{ steps.collect.outputs.apk }}
           if-no-files-found: error
           retention-days: 30
+
+      - name: Upload the Gradle log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-assemble-log
+          path: source/gradle-assemble.log
+          if-no-files-found: warn
