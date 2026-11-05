@@ -36,6 +36,11 @@ on:
         type: boolean
         required: false
         default: true
+      publish_release:
+        description: Attach the APK to a GitHub release so it can be downloaded directly.
+        type: boolean
+        required: false
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -274,3 +279,41 @@ jobs:
           name: gradle-assemble-log
           path: source/gradle-assemble.log
           if-no-files-found: warn
+
+  # ---------------------------------------------------------------------------
+  # 3. Optional: publish the APK as a release asset for a direct download link.
+  # ---------------------------------------------------------------------------
+  publish:
+    name: Publish release
+    needs: apk
+    if: github.event.inputs.publish_release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Download the built APK
+        uses: actions/download-artifact@v4
+        with:
+          name: openmw-android-apk
+          path: apk
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          version=$(grep -oP "openMwAndroidVersionName = '\K[^']+" source/app/build.gradle)
+          tag="apk-${version}-${GITHUB_RUN_NUMBER}"
+          apk=$(find apk -name '*.apk' | head -n 1)
+          [ -n "$apk" ] || { echo "::error::no APK to publish"; exit 1; }
+          cp "$apk" "openmw-android-${version}-debug.apk"
+          gh release create "$tag" "openmw-android-${version}-debug.apk" \
+            --title "OpenMW Android ${version} (touch HUD build ${GITHUB_RUN_NUMBER})" \
+            --notes "Debug-signed arm64-v8a build from \`${GITHUB_SHA:0:8}\`.
+
+          Touch HUD, layout editor and the CI build pipeline. The native OpenMW
+          payload is the 0.51.0-14 reference payload (see tools/GITHUB_BUILD.md),
+          so this APK carries this branch's UI/resources on top of that engine."
+          echo "::notice::Release ${tag} published"

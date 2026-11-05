@@ -35,6 +35,19 @@ because `preBuild` depends on the payload gate; the APK job runs the real
 the first errors are printed as `::error::` annotations on the run page, so they
 are readable without the job log.
 
+## Downloading the APK
+
+Every successful run attaches `openmw-android-apk` to the run's **Artifacts**
+section (download requires a GitHub login). For a link that works anywhere, run
+the workflow with `publish_release = true`: the APK is then attached to a
+`apk-<version>-<run>` release and can be fetched from
+
+```
+https://github.com/Stlucifer15t/OpenMW-Android/releases/latest
+```
+
+The build is debug-signed (`assembleMainlineDebug`), arm64-v8a only.
+
 ## Other payload source: a release asset in this repo
 
 Set `payload_source = release-asset` and attach `openmw-051-payload.zip` to a
