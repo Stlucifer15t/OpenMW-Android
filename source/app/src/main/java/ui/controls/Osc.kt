@@ -427,7 +427,7 @@ class Osc {
         ensureElements()
         preset.applyTo(this)
         for (element in elements) {
-            element.isHidden = preset.hidden.contains(element.id)
+            element.hiddenState = preset.hidden.contains(element.id)
             element.savePrefs()
             element.updateView()
         }
@@ -468,7 +468,7 @@ class Osc {
 
         for (element in elements) {
             val view = element.view ?: continue
-            if (element.isHidden) {
+            if (element.hiddenState) {
                 view.visibility = View.INVISIBLE
                 continue
             }
