@@ -75,11 +75,13 @@ jobs:
           yes | "$SDKMANAGER" --licenses > /dev/null || true
           "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0" "ndk;26.1.10909125"
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-
       - name: Make gradlew executable
         run: chmod +x ./gradlew
+
+      # setup-gradle validates the wrapper by running ./gradlew --version, so it
+      # must come after the executable bit is set (the repo stores gradlew 0644).
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Compile every Kotlin/Java source (no native payload needed)
         run: ./gradlew :app:compileMainlineDebugSources --stacktrace
@@ -175,11 +177,13 @@ jobs:
       - name: Verify the payload against the build gate
         run: python3 tools/verify-openmw-payload.py
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-
       - name: Make gradlew executable
         run: chmod +x ./gradlew
+
+      # setup-gradle validates the wrapper by running ./gradlew --version, so it
+      # must come after the executable bit is set (the repo stores gradlew 0644).
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Assemble the APK
         run: ./gradlew :app:assembleMainlineDebug --stacktrace
