@@ -51,7 +51,7 @@ enum class OscVisibility(val v: Int) {
  * out.
  *
  * Per-element preferences keep their original `osc:<id>:` keys and add a
- * `hidden` flag so individual buttons can be switched off.
+ * `isHidden` flag so individual buttons can be switched off.
  */
 open class TouchHudElement(
     /** Preference key suffix; also the label shown in the layout editor. */
@@ -69,7 +69,11 @@ open class TouchHudElement(
     var y = defaultY
     var size = defaultSize
     var opacity = defaultOpacity
-    var hidden = false
+    /**
+     * Renamed from `hidden`: the generated `setHidden(Boolean)` getter clashes on
+     * the JVM with [setHidden] and only shows up at compile time.
+     */
+    var isHidden = false
 
     var view: View? = null
         private set
@@ -142,7 +146,7 @@ open class TouchHudElement(
     protected fun applyHiddenState(v: View) {
         // INVISIBLE keeps the element laid out (so the editor can still target
         // it) while GONE would collapse the control entirely during play.
-        v.visibility = if (hidden && !editorMode) View.INVISIBLE else View.VISIBLE
+        v.visibility = if (isHidden && !editorMode) View.INVISIBLE else View.VISIBLE
     }
 
     open fun changeOpacity(delta: Float) {
@@ -169,7 +173,7 @@ open class TouchHudElement(
     }
 
     open fun setHidden(value: Boolean) {
-        hidden = value
+        isHidden = value
         savePrefs()
         view?.let { applyHiddenState(it) }
     }
@@ -181,7 +185,7 @@ open class TouchHudElement(
         size = prefs.getInt(ControlSettings.sizeKey(id), defaultSize).coerceIn(minSize, maxSize)
         x = prefs.getInt(ControlSettings.xKey(id), defaultX)
         y = prefs.getInt(ControlSettings.yKey(id), defaultY)
-        hidden = prefs.getBoolean(ControlSettings.hiddenKey(id), false)
+        isHidden = prefs.getBoolean(ControlSettings.hiddenKey(id), false)
         updateView()
     }
 
@@ -192,7 +196,7 @@ open class TouchHudElement(
             .putInt(ControlSettings.sizeKey(id), size)
             .putInt(ControlSettings.xKey(id), x)
             .putInt(ControlSettings.yKey(id), y)
-            .putBoolean(ControlSettings.hiddenKey(id), hidden)
+            .putBoolean(ControlSettings.hiddenKey(id), isHidden)
             .putBoolean(ControlSettings.KEY_CUSTOM_LAYOUT, true)
             .apply()
     }
@@ -203,7 +207,7 @@ open class TouchHudElement(
         size = defaultSize
         x = defaultX
         y = defaultY
-        hidden = false
+        isHidden = false
         updateView()
     }
 

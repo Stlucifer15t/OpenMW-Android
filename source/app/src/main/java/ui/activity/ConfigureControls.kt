@@ -236,7 +236,7 @@ class ConfigureControls : Activity() {
         }
         selectedLabel.text = getString(R.string.editor_selected, element.displayName(this))
         hideButton.text = getString(
-            if (element.hidden) R.string.btn_show else R.string.btn_hide
+            if (element.isHidden) R.string.btn_show else R.string.btn_hide
         )
     }
 
@@ -276,7 +276,7 @@ class ConfigureControls : Activity() {
     /** Toggles the currently selected control. */
     fun clickHide(v: View) {
         val el = selected ?: return
-        el.setHidden(!el.hidden)
+        el.setHidden(!el.isHidden)
         // The editor keeps hidden controls on screen so they can be brought
         // back without a "show all" reset.
         callback?.currentView?.visibility = View.VISIBLE
