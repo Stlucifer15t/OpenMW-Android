@@ -83,8 +83,33 @@ jobs:
           java -version
           ./gradlew --version
 
+      # Publish the Gradle failure as a check annotation so it is readable
+      # without downloading the (large) job log.
       - name: Compile every Kotlin/Java source (no native payload needed)
-        run: ./gradlew :app:compileMainlineDebugSources --stacktrace
+        run: |
+          set +e
+          ./gradlew :app:compileMainlineDebugSources --stacktrace 2>&1 | tee gradle.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            {
+              echo "Gradle failed with exit code $status. First errors:"
+              echo
+              grep -nE "(^e: |error:|FAILURE:|What went wrong|Execution failed|Caused by|> Could not|Unresolved reference)" gradle.log \
+                | head -n 25 || true
+              echo
+              echo "Last 20 lines:"
+              tail -n 20 gradle.log
+            } >&2
+          fi
+          exit "$status"
+
+      - name: Upload the Gradle log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-compile-log
+          path: source/gradle.log
+          if-no-files-found: warn
 
       - name: Report missing native payload
         if: always()
