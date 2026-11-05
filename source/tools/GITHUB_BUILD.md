@@ -10,12 +10,18 @@ it is several hundred megabytes and is produced by `tools/build-openmw-051-runti
 
 | Job | What it needs | What it does |
 |---|---|---|
-| **Kotlin compile check** | nothing | compiles every Kotlin/Java source of `mainlineDebug` |
+| **Kotlin compile check** | nothing | compiles every Kotlin/Java source of `mainlineDebug` (passes on this branch) |
 | **Native payload status** | nothing | checks whether the payload release asset exists |
 | **Build APK** | the payload zip | unpacks it, re-verifies it, runs `assembleMainlineDebug`, uploads the APK |
 
 If the payload asset is missing, the APK job is skipped with a warning rather
 than failing on the Gradle gate.
+
+The compile job passes `-x verifyOpenMwPayload -x removeRetiredWaterAssets`
+because `preBuild` depends on the payload gate; the APK job runs the real
+`assembleMainlineDebug` and therefore keeps the gate enforced. If Gradle fails,
+the first errors are printed as `::error::` annotations on the run page, so you
+can read them without downloading the log.
 
 ## 1. Produce the payload (once, on Windows)
 
