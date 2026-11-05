@@ -78,10 +78,10 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      # setup-gradle validates the wrapper by running ./gradlew --version, so it
-      # must come after the executable bit is set (the repo stores gradlew 0644).
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - name: Show toolchain versions
+        run: |
+          java -version
+          ./gradlew --version
 
       - name: Compile every Kotlin/Java source (no native payload needed)
         run: ./gradlew :app:compileMainlineDebugSources --stacktrace
@@ -180,10 +180,10 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      # setup-gradle validates the wrapper by running ./gradlew --version, so it
-      # must come after the executable bit is set (the repo stores gradlew 0644).
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - name: Show toolchain versions
+        run: |
+          java -version
+          ./gradlew --version
 
       - name: Assemble the APK
         run: ./gradlew :app:assembleMainlineDebug --stacktrace
