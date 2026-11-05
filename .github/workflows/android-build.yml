@@ -91,14 +91,20 @@ jobs:
           ./gradlew :app:compileMainlineDebugSources --stacktrace 2>&1 | tee gradle.log
           status=${PIPESTATUS[0]}
           if [ "$status" -ne 0 ]; then
+            echo "::error::Gradle failed with exit code $status"
+            # Annotations survive even when job logs/artifacts are not readable.
+            matches=$(grep -nE "(^e: |error:|FAILURE:|What went wrong|Execution failed|Caused by|> Could not|Unresolved reference|Could not resolve)" gradle.log | head -n 8 || true)
+            if [ -z "$matches" ]; then
+              matches=$(tail -n 8 gradle.log)
+            fi
+            printf '%s\n' "$matches" | while IFS= read -r line; do
+              [ -n "$line" ] || continue
+              esc=$(printf '%s' "$line" | tr -d '\r' | cut -c1-900)
+              echo "::error::${esc}"
+            done
             {
-              echo "Gradle failed with exit code $status. First errors:"
-              echo
-              grep -nE "(^e: |error:|FAILURE:|What went wrong|Execution failed|Caused by|> Could not|Unresolved reference)" gradle.log \
-                | head -n 25 || true
-              echo
-              echo "Last 20 lines:"
-              tail -n 20 gradle.log
+              echo "===== tail of gradle.log ====="
+              tail -n 40 gradle.log
             } >&2
           fi
           exit "$status"
